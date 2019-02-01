@@ -10,7 +10,7 @@ import struct
 
 plt.rc('font',family='Times New Roman',size=10)
 markers_freq = ['.','o','v','1','2','3','4','^','<','>','s','p','*','h','H','+','x','D','d','|','_',','] 
-fig = plt.figure(figsize=(5,3))
+fig = plt.figure(figsize=(5,5))
 
 sgn = 1.0
 interval = 5
@@ -25,14 +25,11 @@ result = []
 #savepath = pwd + "//" + "wt_1.txt"
 #fr = open(savepath, "w")
 
-curvename = []
-
-for dd in np.arange(60,101,10):
-    curvename.append(dd)
+for dd in np.arange(42,163,10):
     count = 0
     record = []
     while True:
-        filepath = pwd + "//" + "input_data" + "//" + "train1" + "//" + str(dd) + "//" + str(count)
+        filepath = pwd + "//" + "input_data" + "//" + "4" + "//" + str(dd) + "//" + str(count)
 
         if os.path.isfile(filepath) == False:
             break
@@ -61,27 +58,10 @@ for dd in np.arange(60,101,10):
         data1 = data1[int(250000 / interval):int(350000 / interval)]
         data2 = data2[int(250000 / interval):int(350000 / interval)]
 
-        wavelet = 'morl'
-        c = pywt.central_frequency(wavelet)
-        fa = [30000] #np.arange(400000, 200000 - 1, -20000)
-        scales = np.array(float(c)) * fs / np.array(fa)
-
-        [cfs1,frequencies1] = pywt.cwt(data1,scales,wavelet,dt)
-        [cfs2,frequencies2] = pywt.cwt(data2,scales,wavelet,dt)
-        power1 = (abs(cfs1)) ** 2
-        power2 = (abs(cfs2)) ** 2
-
-        corr = []
-        for i in range(len(power1)):
-            mean1 = power1[i].mean()
-            power1[i] = power1[i] / mean1
-            mean2 =  power2[i].mean()
-            power2[i] = power2[i] / mean2
-            temp = signal.correlate(power1[i],power2[i], mode='same',method='fft')
-            corr.append((np.where(temp == max(temp))[0][0]-len(temp) / 2 ) * dt * 1000)
-
+        temp = signal.correlate(data1,data2, mode='same',method='fft')
+        corr=(np.where(temp == max(temp))[0][0]-len(temp) / 2 ) * dt * 1000
         print(corr)
-        record.append(corr[0])
+        record.append(corr)
         
 ##        E=207 * pow(10,9) #203#207
 ##        p=7.86 * 1000 #7.93#7.86
@@ -109,16 +89,34 @@ for dd in np.arange(60,101,10):
 #    plt.plot(item,marker = markers_freq[index], label = str((axis_xf[index] + 1) * 20) + 'kHz')
 
 
+plt.subplot(2,1,1)
+x = []
+y = []
 for index,item in enumerate(result):
-    plt.plot(item,marker = markers_freq[index], label = str(curvename[index]) + 'cm')
+    for yi in item:
+        xi = 120 - index * 20
+        x.append(xi)
+        y.append(yi)
+        plt.plot(xi, yi, '+')
 
-plt.xlabel('order')
-plt.ylabel('td/ms')
+f = np.polyfit(x,y,1)
+xf = [120 - i * 20 for i in range(0,13)]
+yf = [xi * f[0] + f[1] for xi in xf]
+plt.plot(xf,yf,'r-')
+plt.ylabel('time difference/ms')
+print(f)
 
-ax = plt.gca()
-box = ax.get_position()
-ax.set_position([box.x0, box.y0, box.width, box.height])
-plt.legend(loc='upper left',bbox_to_anchor=(1,1),markerscale=2)
-plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.7)
+plt.subplot(2,1,2)
+error = []
+for index,item in enumerate(result):
+    for yi in item:
+        xi = 120 - index * 20
+        xf = (yi - f[1])/f[0]
+        error.append(abs(xf - xi))
+        plt.plot(xi,xf,'+')
+plt.ylabel('calculation result/cm')
+print(np.mean(error))
 
+plt.xlabel('distance difference/cm')
+plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.8)
 plt.show()

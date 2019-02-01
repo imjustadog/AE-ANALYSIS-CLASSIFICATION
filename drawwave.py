@@ -6,7 +6,7 @@ import os
 plt.rc('font',family='Times New Roman',size=10)
 
 pwd = os.getcwd()
-fb = open(pwd + "//" + "3" +"//" + "100" +  "//" + "1", "rb")
+fb = open(pwd + "//" + "input_data" +"//" + "other" + "//" + "drop" + "//" + "3", "rb")
 x = 0
 datax = []
 datay1 = []
@@ -26,8 +26,9 @@ while True:
     datay2.append(ch2)
 
 fig = plt.figure(figsize=(5,3))
-plt.plot(datax,datay1,color='g',label = 'ch1')
+
 plt.plot(datax,datay2,color='b',label = 'ch2')
+plt.plot(datax,datay1,color='g',label = 'ch1')
 plt.xlabel('time/s')
 plt.ylabel('amplitude/V')
 

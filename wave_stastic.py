@@ -25,14 +25,11 @@ result = []
 #savepath = pwd + "//" + "wt_1.txt"
 #fr = open(savepath, "w")
 
-curvename = []
-
-for dd in np.arange(60,101,10):
-    curvename.append(dd)
+for dd in np.arange(42,163,10):
     count = 0
     record = []
     while True:
-        filepath = pwd + "//" + "input_data" + "//" + "train1" + "//" + str(dd) + "//" + str(count)
+        filepath = pwd + "//" + "input_data" + "//" + "4" + "//" + str(dd) + "//" + str(count)
 
         if os.path.isfile(filepath) == False:
             break
@@ -61,42 +58,11 @@ for dd in np.arange(60,101,10):
         data1 = data1[int(250000 / interval):int(350000 / interval)]
         data2 = data2[int(250000 / interval):int(350000 / interval)]
 
-        wavelet = 'morl'
-        c = pywt.central_frequency(wavelet)
-        fa = [30000] #np.arange(400000, 200000 - 1, -20000)
-        scales = np.array(float(c)) * fs / np.array(fa)
-
-        [cfs1,frequencies1] = pywt.cwt(data1,scales,wavelet,dt)
-        [cfs2,frequencies2] = pywt.cwt(data2,scales,wavelet,dt)
-        power1 = (abs(cfs1)) ** 2
-        power2 = (abs(cfs2)) ** 2
-
-        corr = []
-        for i in range(len(power1)):
-            mean1 = power1[i].mean()
-            power1[i] = power1[i] / mean1
-            mean2 =  power2[i].mean()
-            power2[i] = power2[i] / mean2
-            temp = signal.correlate(power1[i],power2[i], mode='same',method='fft')
-            corr.append((np.where(temp == max(temp))[0][0]-len(temp) / 2 ) * dt * 1000)
-
+        temp = signal.correlate(data1,data2, mode='same',method='fft')
+        corr=(np.where(temp == max(temp))[0][0]-len(temp) / 2 ) * dt * 1000
         print(corr)
-        record.append(corr[0])
+        record.append(corr)
         
-##        E=207 * pow(10,9) #203#207
-##        p=7.86 * 1000 #7.93#7.86
-##        o=0.27
-##        h=0.002
-##
-##        freq = np.array(frequencies1)
-##        param = E * h * h * pi * pi / 3.0 / p / (1.0 - o * o)
-##        c = pow(param * pow(freq,2),0.25)
-##        time = sgn * (100.0 - dd) * 2.0 / 100.0 / c * 1000.0
-##
-##        plt.plot(time,corr,'+')
-##        for i in range(len(freq)):
-##            fr.write(str(int(freq[i])) + " " + str(time[i]) + " " + str(corr[i]) + "\r\n")
-
         count = count + 1
         if count > 20:
             break
@@ -110,10 +76,10 @@ for dd in np.arange(60,101,10):
 
 
 for index,item in enumerate(result):
-    plt.plot(item,marker = markers_freq[index], label = str(curvename[index]) + 'cm')
+    plt.plot(item,marker = markers_freq[index], label = str((100 - (index + 4) * 10) * 2) + 'cm')
 
 plt.xlabel('order')
-plt.ylabel('td/ms')
+plt.ylabel('dt/ms')
 
 ax = plt.gca()
 box = ax.get_position()

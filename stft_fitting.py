@@ -36,10 +36,10 @@ result = []
 pwd = os.getcwd()
 
 for dd in np.arange(42,163,10):
-    count = 0
+    count = 30
     record = []
     while True:
-        filepath = pwd + "//" + "input_data" + "//" + "4" + "//" + str(dd) + "//" + str(count)
+        filepath = pwd + "//" + "input_data" + "//" + "5" + "//" + str(dd) + "//" + str(count)
 
         if os.path.isfile(filepath) == False:
             break
@@ -97,73 +97,40 @@ for dd in np.arange(42,163,10):
         print(corr)
         record.append(corr)
 
-        #magnitude1 = np.array(magnitude1).T
-        #magnitude2 = np.array(magnitude2).T
-        #corr = []
-        #for i in range(len(magnitude1)):
-        #    mean1 = magnitude1[i].mean()
-        #    magnitude1[i] = magnitude1[i] / mean1
-        #    mean2 = magnitude2[i].mean()
-        #    magnitude2[i] = magnitude2[i] / mean2
-        #    temp = signal.correlate(magnitude1[i],magnitude2[i], mode='valid',method='fft')
-        #    corr.append((np.where(temp == max(temp))[0][0] - 10000 / interval ) * interval * dt * 1000)
-
-        #print(corr)
-        #record.append(corr[0])
-        
-##
-##        tdoa = max(corr,key = lambda x:x[0])
-##        print tdoa[2],(tdoa[1] - 10000 / interval ) * interval * dt * 1000
-##
-##        E=207 * pow(10,9) #203#207
-##        p=7.86 * 1000 #7.93#7.86
-##        o=0.27
-##        h=0.002
-##
-##        param = E * h * h * pi * pi / 3.0 / p / (1.0 - o * o)
-##        c = pow(param * pow(freq,2),0.25)
-##        time = sgn * (100.0 - dd) * 2.0 / 100.0 / c * 1000.0
-##
-##        plt.plot(time,corr,'+')
-##        for i in range(len(freq)):
-##            fr.write(str(int(freq[i])) + " " + str(time[i]) + " " + str(corr[i]) + "\r\n")
-
         count = count + 1
-        if count > 20:
+        if count > 50:
             break
     result.append(record)
 
-##fr.close()
-##plt.xlabel('theory dt/ms')
-##plt.ylabel('cross correlation dt/ms')
-##
-##plt.xlim(-2,2)
-##plt.ylim(-1.5,1.5)
-##
-##ax = plt.gca()
-##box = ax.get_position()
-##ax.set_position([box.x0, box.y0, box.width, box.height])
-##plt.legend(loc='upper left',bbox_to_anchor=(1,1),markerscale=2)
-##plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.7)
-##
-##plt.show()
-
-
-#result = np.transpose(result)
-#for index,item in enumerate(result):
-#    plt.plot(item,marker = markers_freq[index], label = str((axis_xf[index] + 1) * 20) + 'kHz')
-
+plt.subplot(2,1,1)
+x = []
+y = []
 for index,item in enumerate(result):
-    plt.plot(item,marker = markers_freq[index], label = str((100 - (index + 4) * 10) * 2) + 'cm')
+    for yi in item:
+        xi = 120 - index * 20
+        x.append(xi)
+        y.append(yi)
+        plt.plot(xi, yi, '+')
 
-plt.xlabel('order')
-plt.ylabel('dt/ms')
+f = np.polyfit(x,y,1)
+xf = [120 - i * 20 for i in range(0,13)]
+yf = [xi * f[0] + f[1] for xi in xf]
+plt.plot(xf,yf,'r-')
+plt.ylabel('time difference/ms')
+print(f)
 
-ax = plt.gca()
-box = ax.get_position()
-ax.set_position([box.x0, box.y0, box.width, box.height])
-plt.legend(loc='upper left',bbox_to_anchor=(1,1),markerscale=2)
-plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.7)
+plt.subplot(2,1,2)
+error = []
+for index,item in enumerate(result):
+    for yi in item:
+        xi = 120 - index * 20
+        xf = (yi - f[1])/f[0]
+        error.append(abs(xf - xi))
+        plt.plot(xi,xf-xi,'+')
+plt.ylabel('localization error/cm')
+print(np.mean(error))
 
+plt.xlabel('distance difference/cm')
+plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.8)
 plt.show()
 

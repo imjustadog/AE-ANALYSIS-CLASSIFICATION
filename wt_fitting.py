@@ -26,7 +26,7 @@ result = []
 #fr = open(savepath, "w")
 
 for dd in np.arange(42,163,10):
-    count = 30
+    count = 0
     record = []
     while True:
         filepath = pwd + "//" + "input_data" + "//" + "5" + "//" + str(dd) + "//" + str(count)
@@ -79,32 +79,11 @@ for dd in np.arange(42,163,10):
 
         print(corr)
         record.append(corr[0])
-        
-##        E=207 * pow(10,9) #203#207
-##        p=7.86 * 1000 #7.93#7.86
-##        o=0.27
-##        h=0.002
-##
-##        freq = np.array(frequencies1)
-##        param = E * h * h * pi * pi / 3.0 / p / (1.0 - o * o)
-##        c = pow(param * pow(freq,2),0.25)
-##        time = sgn * (100.0 - dd) * 2.0 / 100.0 / c * 1000.0
-##
-##        plt.plot(time,corr,'+')
-##        for i in range(len(freq)):
-##            fr.write(str(int(freq[i])) + " " + str(time[i]) + " " + str(corr[i]) + "\r\n")
 
         count = count + 1
-        if count > 50:
+        if count > 20:
             break
     result.append(record)
-
-#fr.close()
-
-#result = np.transpose(result)
-#for index,item in enumerate(result):
-#    plt.plot(item,marker = markers_freq[index], label = str((axis_xf[index] + 1) * 20) + 'kHz')
-
 
 plt.subplot(2,1,1)
 x = []
@@ -114,7 +93,7 @@ for index,item in enumerate(result):
         xi = 120 - index * 20
         x.append(xi)
         y.append(yi)
-        plt.plot(xi, yi, 'b+')
+        plt.plot(xi, yi, '+')
 
 f = np.polyfit(x,y,1)
 xf = [120 - i * 20 for i in range(0,13)]
@@ -130,10 +109,10 @@ for index,item in enumerate(result):
         xi = 120 - index * 20
         xf = (yi - f[1])/f[0]
         error.append(abs(xf - xi))
-        plt.plot(xi,xf-xi,'b+')
-plt.ylabel('localization error/cm')
+        plt.plot(xi,xf,'+')
+plt.ylabel('calculation result/cm')
 print(np.mean(error))
 
 plt.xlabel('distance difference/cm')
-plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.7)
+plt.subplots_adjust(bottom = 0.2,left = 0.15,right=0.8)
 plt.show()

@@ -8,7 +8,7 @@ plt.rc('font',family='Times New Roman',size=10)
 pwd = os.getcwd()
 count = 0
 while True:
-    fb = open(pwd + "//" + "input_data" + "//" + "4" + "//" + "162" + "//" + str(count), "rb")
+    fb = open(pwd + "//" + "input_data" + "//" + "train1" + "//" + "60" + "//" + str(count), "rb")
     x = 0
     datax = []
     datay1 = []

@@ -7,7 +7,7 @@ from scipy import signal
 #total data:786432 ch1 ch2
 
 pwd = os.getcwd()
-fb = open(pwd + "//" + "soft0_7" + "//" + "80" + "//" + "0", "rb")
+fb = open(pwd + "//" + "input_data" + "//" + "other" + "//" + "drop" + "//" + "3", "rb")
 x = 0
 datax = []
 datay1 = []
@@ -58,8 +58,8 @@ while True:
 mag1 = sum(np.array(magnitude1)) / len(magnitude1)
 mag2 = sum(np.array(magnitude2)) / len(magnitude2)
 
-start = fftnum / 500
-end = fftnum / 25
+start = int(fftnum / 500)
+end = int(fftnum / 25)
 #print end - start
 
 mag1 = mag1[start:end]
