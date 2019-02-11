@@ -27,7 +27,7 @@ class Model(object):
             global_step = int(ckpt.split('-')[1])
 
         # restore
-        saver.restore(sess, 'saver/'+ckpt)
+        saver.restore(sess, 'saver/CAE/'+ckpt)
         print('restored from checkpoint ' + ckpt)
 
         return saver, global_step

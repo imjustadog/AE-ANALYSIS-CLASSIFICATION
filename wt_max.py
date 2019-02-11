@@ -4,6 +4,7 @@ import numpy as np
 import os
 from scipy import signal
 from math import pi
+import heapq
 
 import pywt
 import struct
@@ -24,7 +25,6 @@ result = []
 
 #savepath = pwd + "//" + "wt_1.txt"
 #fr = open(savepath, "w")
-
 curvename = []
 
 for dd in np.arange(60,101,10):
@@ -32,7 +32,7 @@ for dd in np.arange(60,101,10):
     count = 0
     record = []
     while True:
-        filepath = pwd + "//" + "input_data" + "//" + "train_knock" + "//" + str(dd) + "//" + str(count)
+        filepath = pwd + "//" + "input_data" + "//" + "train1" + "//" +  str(dd) + "//" + str(count)
 
         if os.path.isfile(filepath) == False:
             break
@@ -63,7 +63,7 @@ for dd in np.arange(60,101,10):
 
         wavelet = 'morl'
         c = pywt.central_frequency(wavelet)
-        fa = [40000] #np.arange(400000, 200000 - 1, -20000)
+        fa = np.arange(20000, 400000 + 1, 10000)
         scales = np.array(float(c)) * fs / np.array(fa)
 
         [cfs1,frequencies1] = pywt.cwt(data1,scales,wavelet,dt)
@@ -71,17 +71,29 @@ for dd in np.arange(60,101,10):
         power1 = abs(cfs1)
         power2 = abs(cfs2)
 
-        corr = []
+        corr_time = []
+        corr_value = []
+        corr_frequency = []
         for i in range(len(power1)):
             mean1 = power1[i].mean()
             power1[i] = power1[i] / mean1
             mean2 =  power2[i].mean()
             power2[i] = power2[i] / mean2
             temp = signal.correlate(power1[i],power2[i], mode='same',method='fft')
-            corr.append((np.where(temp == max(temp))[0][0]-len(temp) / 2 ) * dt * 1000)
+            max_record = []
+            for index,item in enumerate(temp):
+                if index == 0 or index == len(temp) - 1:
+                    continue
+                if item > temp[index-1] and item > temp[index + 1]:
+                    max_record.append(item)
+            max2=heapq.nlargest(2,max_record)
+            corr_value.append(max2[0]/max2[1])
+            corr_frequency.append(i*10 + 20)
+            corr_time.append((np.where(temp == max(temp))[0][0]-len(temp) / 2 ) * dt * 1000)
 
-        print(corr)
-        record.append(corr[0])
+        corr_index = np.where(corr_value == max(corr_value))[0][0]
+        print(dd,int(corr_frequency[corr_index]),corr_time[corr_index])
+        record.append(corr_time[corr_index])
         
 ##        E=207 * pow(10,9) #203#207
 ##        p=7.86 * 1000 #7.93#7.86
@@ -113,7 +125,7 @@ for index,item in enumerate(result):
     plt.plot(item,marker = markers_freq[index], label = str(curvename[index]) + 'cm')
 
 plt.xlabel('order')
-plt.ylabel('td/ms')
+plt.ylabel('dt/ms')
 
 ax = plt.gca()
 box = ax.get_position()

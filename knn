@@ -1,0 +1,6 @@
+train1 60 0 ch1
+train 140 1 ch2 44942.0
+
+train1 60 0 ch1
+other drop 8 ch1 44917.0
+

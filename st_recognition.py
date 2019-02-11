@@ -4,6 +4,7 @@ import numpy as np
 import os
 from scipy import signal
 from math import pi
+from stockwell import st
 
 import pywt
 import struct
@@ -20,8 +21,8 @@ fig_size = 40
 pwd = os.getcwd()
 
 dd=80
-count = 2
-filepath = pwd + "//" + "input_data" + "//" + "train1" + "//" + str(dd) + "//" + str(count)
+count = 8
+filepath = pwd + "//" + "input_data" + "//" + "other" + "//" + "drop" + "//" + str(count)
 
 fb = open(filepath, "rb")
 x = 0
@@ -46,17 +47,16 @@ fb.close()
 data1 = data1[int(start / interval):int(end / interval)]
 data2 = data2[int(start / interval):int(end / interval)]
 
-wavelet = 'morl'
-c = pywt.central_frequency(wavelet)
 fa = np.arange(400000, 20000 - 1, -10000)
-scales = np.array(float(c)) * fs / np.array(fa)
+cfs1 = []
+cfs2 = []
+for a in fa:
+    fmaxmin = int(a*(len(data1)*dt))
+    cfs1.append(st.st(data1, fmaxmin, fmaxmin)[0])
+    cfs2.append(st.st(data2, fmaxmin, fmaxmin)[0])
 
-[cfs1,frequencies1] = pywt.cwt(data1,scales,wavelet,dt)
-[cfs2,frequencies2] = pywt.cwt(data2,scales,wavelet,dt)
-power1 = (abs(cfs1))
-power2 = (abs(cfs2))
-
-#print(len(power1),len(power1[0]))
+power1 = np.abs(cfs1)
+power2 = np.abs(cfs2)
 
 length_now = len(power1[0])
 power1 = np.reshape(power1,(len(power1),fig_size,int(length_now/fig_size)))

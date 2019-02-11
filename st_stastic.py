@@ -4,6 +4,7 @@ import numpy as np
 import os
 from scipy import signal
 from math import pi
+from stockwell import st
 
 import pywt
 import struct
@@ -24,15 +25,14 @@ result = []
 
 #savepath = pwd + "//" + "wt_1.txt"
 #fr = open(savepath, "w")
-
 curvename = []
 
-for dd in np.arange(60,101,10):
+for dd in np.arange(60,141,10):
     curvename.append(dd)
     count = 0
     record = []
     while True:
-        filepath = pwd + "//" + "input_data" + "//" + "train_knock" + "//" + str(dd) + "//" + str(count)
+        filepath = pwd + "//" + "input_data" + "//" + "train1" + "//" +  str(dd) + "//" + str(count)
 
         if os.path.isfile(filepath) == False:
             break
@@ -61,15 +61,16 @@ for dd in np.arange(60,101,10):
         data1 = data1[int(250000 / interval):int(350000 / interval)]
         data2 = data2[int(250000 / interval):int(350000 / interval)]
 
-        wavelet = 'morl'
-        c = pywt.central_frequency(wavelet)
-        fa = [40000] #np.arange(400000, 200000 - 1, -20000)
-        scales = np.array(float(c)) * fs / np.array(fa)
+        fa = [30000]#np.arange(300000, 400000 + 1, 10000)
+        cfs1 = []
+        cfs2 = []
+        for a in fa:
+            fmaxmin = int(a*(len(data1)*dt))
+            cfs1.append(st.st(data1, fmaxmin, fmaxmin)[0])
+            cfs2.append(st.st(data2, fmaxmin, fmaxmin)[0])
 
-        [cfs1,frequencies1] = pywt.cwt(data1,scales,wavelet,dt)
-        [cfs2,frequencies2] = pywt.cwt(data2,scales,wavelet,dt)
-        power1 = abs(cfs1)
-        power2 = abs(cfs2)
+        power1 = (abs(np.array(cfs1)))
+        power2 = (abs(np.array(cfs2)))
 
         corr = []
         for i in range(len(power1)):
@@ -113,7 +114,7 @@ for index,item in enumerate(result):
     plt.plot(item,marker = markers_freq[index], label = str(curvename[index]) + 'cm')
 
 plt.xlabel('order')
-plt.ylabel('td/ms')
+plt.ylabel('dt/ms')
 
 ax = plt.gca()
 box = ax.get_position()
