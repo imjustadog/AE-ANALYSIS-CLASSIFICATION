@@ -31,7 +31,7 @@ for dd in np.arange(60,101,10):
     count = 0
     record = []
     while True:
-        filepath = pwd + "//" + "input_data" + "//" + "train1" + "//" +  str(dd) + "//" + str(count)
+        filepath = pwd + "//" + "input_data" + "//" + "train_knock" + "//" +  str(dd) + "//" + str(count)
 
         if os.path.isfile(filepath) == False:
             break
@@ -62,7 +62,7 @@ for dd in np.arange(60,101,10):
 
         wavelet = 'morl'
         c = pywt.central_frequency(wavelet)
-        fa = np.arange(400000, 20000 - 1, -10000)
+        fa = np.arange(20000, 400000 + 1, 10000)
         scales = np.array(float(c)) * fs / np.array(fa)
 
         [cfs1,frequencies1] = pywt.cwt(data1,scales,wavelet,dt)
